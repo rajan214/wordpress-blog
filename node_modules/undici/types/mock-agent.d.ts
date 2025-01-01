@@ -1,13 +1,8 @@
-import Agent from './agent'
-import Dispatcher from './dispatcher'
-import { Interceptable, MockInterceptor } from './mock-interceptor'
-import MockDispatch = MockInterceptor.MockDispatch;
+import Agent = require('./agent')
+import Dispatcher = require('./dispatcher')
+import { Interceptable } from './mock-interceptor'
 
-export default MockAgent
-
-interface PendingInterceptor extends MockDispatch {
-  origin: string;
-}
+export = MockAgent
 
 /** A mocked Agent class that implements the Agent API. It allows one to intercept HTTP requests made through undici and return mocked responses instead. */
 declare class MockAgent<TMockAgentOptions extends MockAgent.Options = MockAgent.Options> extends Dispatcher {
@@ -31,14 +26,6 @@ declare class MockAgent<TMockAgentOptions extends MockAgent.Options = MockAgent.
   enableNetConnect(host: ((host: string) => boolean)): void;
   /** Causes all requests to throw when requests are not matched in a MockAgent intercept. */
   disableNetConnect(): void;
-  pendingInterceptors(): PendingInterceptor[];
-  assertNoPendingInterceptors(options?: {
-    pendingInterceptorsFormatter?: PendingInterceptorsFormatter;
-  }): void;
-}
-
-interface PendingInterceptorsFormatter {
-  format(pendingInterceptors: readonly PendingInterceptor[]): string;
 }
 
 declare namespace MockAgent {

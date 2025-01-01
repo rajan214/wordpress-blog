@@ -2,8 +2,9 @@ const express = require('express');
 const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
-
+const cors = require('cors');
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 const wpApiUrl = 'https://teraboxvideoplayer.one/wp-json/wp/v2/';

@@ -1,6 +1,6 @@
 const express = require('express');
 const axios = require('axios');
-const cheerio = require('cheerio');
+// const cheerio = require('cheerio');
 const webStream = require('web-streams-polyfill');
 const FormData = require('form-data');
 const base64Img = require('base64-img');
@@ -37,27 +37,41 @@ async function processPostRequest(url, id) {
     return { status: 'success', message: 'Post added successfully', data: response };
 }
 
+// async function extractOpenGraphData(url) {
+//     const { data } = await axios.get(url);
+//     const $ = cheerio.load(data);
+//     let ogTitle = '';
+//     let ogImage = '';
+
+//     const ogTitleTag = $("meta[property='og:title']").attr('content');
+//     const ogImageTag = $("meta[property='og:image']").attr('content');
+
+//     if (ogTitleTag) {
+//         ogTitle = ogTitleTag;
+//     }
+
+//     if (ogImageTag) {
+//         ogImage = ogImageTag;
+//     }
+
+//     // Remove unwanted file types from the ogTitle if necessary
+//     if (ogTitle) {
+//         ogTitle = ogTitle.replace(/(.*\.(mkv|mp4|avi|mov|wmv|flv|webm|mpeg|mpg|3gp|ogg|mpeg4))[^a-zA-Z0-9]*.*/i, '$1');
+//     }
+
+//     return { ogTitle, ogImage };
+// }
+
 async function extractOpenGraphData(url) {
+    // Fetch HTML content using axios
     const { data } = await axios.get(url);
-    const $ = cheerio.load(data);
-    let ogTitle = '';
-    let ogImage = '';
+    
+    // Extract Open Graph meta tags using regex
+    const ogTitleMatch = data.match(/<meta property="og:title" content="([^"]+)"/);
+    const ogImageMatch = data.match(/<meta property="og:image" content="([^"]+)"/);
 
-    const ogTitleTag = $("meta[property='og:title']").attr('content');
-    const ogImageTag = $("meta[property='og:image']").attr('content');
-
-    if (ogTitleTag) {
-        ogTitle = ogTitleTag;
-    }
-
-    if (ogImageTag) {
-        ogImage = ogImageTag;
-    }
-
-    // Remove unwanted file types from the ogTitle if necessary
-    if (ogTitle) {
-        ogTitle = ogTitle.replace(/(.*\.(mkv|mp4|avi|mov|wmv|flv|webm|mpeg|mpg|3gp|ogg|mpeg4))[^a-zA-Z0-9]*.*/i, '$1');
-    }
+    const ogTitle = ogTitleMatch ? ogTitleMatch[1] : '';
+    const ogImage = ogImageMatch ? ogImageMatch[1] : '';
 
     return { ogTitle, ogImage };
 }

@@ -26,7 +26,7 @@ async function processPostRequest(url, id) {
 
     const postData = {
         title: ogData.ogTitle,
-        content: generatePostContent(url, imageUrl.imageUrl),
+        content: generatePostContent(url, imageUrl.imageUrl,ogData.ogTitle),
         slug: id,
         status: 'publish',
         featured_media: imageUrl.id,
@@ -76,9 +76,9 @@ async function uploadImageToWordPress(imageUrl, id) {
 }
 
 // Function to generate post content
-function generatePostContent(url, imageUrl) {
+function generatePostContent(url, imageUrl,imageTitle) {
     return `
-        <img src="${imageUrl}" alt="Image from the link" /><br />
+        <img src="${imageUrl}" alt="${imageTitle}" /><br />
         <p>📮 𝐅𝐮𝐥𝐥 𝐕𝐢𝐝𝐞𝐨 𝐋𝐢𝐧𝐤 📮</p>
         <p>
             <a href="${url}" target="_blank">

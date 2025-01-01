@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const webStream = require('web-streams-polyfill');
 const FormData = require('form-data');
 const base64Img = require('base64-img');
 const fs = require('fs');

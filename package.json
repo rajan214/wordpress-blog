@@ -1,9 +1,19 @@
 {
+  "name": "node-wordpress-api",
+  "version": "1.0.0",
+  "description": "Node.js app to interact with WordPress",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "axios": "^1.7.9",
     "base64-img": "^1.0.4",
     "cheerio": "^1.0.0",
     "express": "^4.21.2",
     "form-data": "^4.0.1"
+  },
+  "engines": {
+    "node": "14.x"
   }
 }

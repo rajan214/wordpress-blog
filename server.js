@@ -91,14 +91,45 @@ function generatePostContent(url, imageUrl,imageTitle) {
 // Function to check if the post already exists
 async function getAllPosts(id) {
     try {
-        const { data } = await axios.get(`${wpApiUrl}posts`);
-        const slugs = data.map(post => post.slug.toLowerCase());
-        return slugs.includes(id.toLowerCase()); // Returns true if exists
-    } catch (error) {
-        console.error('Error fetching posts from WordPress:', error);
-        return false; // Return false if there was an error
-    }
-}
+        const slugs = [];
+        let page = 1;
+        let totalPages = 1; // Set an initial value for totalPages
+    
+        // Loop to fetch posts from all pages
+        while (page <= totalPages) {
+          // Define the API URL with pagination
+          const url = `https://teraboxvideoplayer.one/wp-json/wp/v2/posts?per_page=100&page=${page}`;
+          
+          // Fetch data from the API
+          const response = await axios.get(url, {
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+    
+          // Extract the total pages from the response headers
+          totalPages = parseInt(response.headers['x-wp-totalpages'], 10);
+    
+          // Check if there are any posts returned
+          if (response.data.length === 0) {
+            break;  // Stop if no posts are returned
+          } else {
+            // Extract the slugs from the posts and add them to the array
+            const pageSlugs = response.data.map(post => post.slug.toLowerCase());
+            slugs.push(...pageSlugs);
+            
+            // Move to the next page
+            page++;
+          }
+        }
+    
+        return slugs.includes(id.toLowerCase());
+    
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        return false;
+      }
+  }
 
 // Function to send post to WordPress
 async function sendPostToWordPress(data) {

@@ -43,7 +43,7 @@ async function extractOpenGraphData(url) {
     const ogTitleMatch = data.match(/<meta property="og:title" content="([^"]+)"/);
     const ogImageMatch = data.match(/<meta property="og:image" content="([^"]+)"/);
 
-    const ogTitle = ogTitleMatch ? ogTitleMatch[1] : '';
+    let ogTitle = ogTitleMatch ? ogTitleMatch[1] : '';
     const ogImage = ogImageMatch ? ogImageMatch[1] : '';
 
     // Clean up ogTitle if necessary

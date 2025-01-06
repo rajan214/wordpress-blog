@@ -12,13 +12,14 @@ const wpApiUrl = 'https://teraboxvideoplayer.one/wp-json/wp/v2/';
 
 // Function to process the incoming POST request
 async function processPostRequest(url, id) {
+   
     const existingPosts = await getAllPosts(id);
     if (existingPosts === true) {
         return { status: 'error', message: 'Post already exists' };
     }
 
     const ogData = await extractOpenGraphData(url);
-
+    
     if (!ogData.ogImage) {
         return { status: 'error', message: 'No image found in Open Graph data' };
     }
@@ -40,6 +41,7 @@ async function processPostRequest(url, id) {
 // Function to extract Open Graph data from a URL
 async function extractOpenGraphData(url) {
     const { data } = await axios.get(url);
+    const suffixes = ["TeraBox Video Video", "Tera Box Video", "TeraBox Link Video", "Viral Video Link"];
 
     const ogTitleMatch = data.match(/<meta property="og:title" content="([^"]+)"/);
     const ogImageMatch = data.match(/<meta property="og:image" content="([^"]+)"/);
@@ -51,6 +53,10 @@ async function extractOpenGraphData(url) {
     if (ogTitle) {
         ogTitle = ogTitle.replace(/(.*\.(mkv|mp4|avi|mov|wmv|flv|webm|mpeg|mpg|3gp|ogg|mpeg4))[^a-zA-Z0-9]*.*/i, '$1');
     }
+    const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+    // Append the suffix to ogTitle
+    ogTitle = `${ogTitle} - ${randomSuffix}`;
+          console.log('ogTitle', ogTitle)
 
     return { ogTitle, ogImage };
 }
@@ -90,6 +96,19 @@ function generatePostContent(url, imageUrl,imageTitle) {
 }
 
 // Function to check if the post already exists
+// async function getAllPosts(id) {
+//     try {
+//         const { data } = await axios.get(`${wpApiUrl}posts`);
+        
+//         const slugs = data.map(post => post.slug.toLowerCase());
+       
+//         return slugs.includes(id.toLowerCase()); // Returns true if exists
+//     } catch (error) {
+//         console.error('Error fetching posts from WordPress:', error);
+//         return false; // Return false if there was an error
+//     }
+// }
+
 async function getAllPosts(id) {
     try {
         const slugs = [];
@@ -130,7 +149,7 @@ async function getAllPosts(id) {
         console.error('Error fetching data:', error);
         return false;
       }
-  }
+}
 
 // Function to send post to WordPress
 async function sendPostToWordPress(data) {
@@ -163,6 +182,7 @@ app.post('/', async (req, res) => {
         res.json({ status: 'error', message: 'Invalid data' });
     }
 });
+
 
 app.post('/getVideoURLs', async (req, res) => {
     const { iframeUrl } = req.body;
@@ -201,6 +221,7 @@ app.post('/getVideoURLs', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while processing the request.' });
     }
 });
+
 
 // Start the server
 app.listen(3000, () => {

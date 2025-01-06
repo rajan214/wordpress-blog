@@ -3,6 +3,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const cors = require('cors');
+const puppeteer = require('puppeteer');
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -160,6 +161,44 @@ app.post('/', async (req, res) => {
         }
     } else {
         res.json({ status: 'error', message: 'Invalid data' });
+    }
+});
+
+app.post('/getVideoURLs', async (req, res) => {
+    const { iframeUrl } = req.body;
+
+    if (!iframeUrl) {
+        return res.status(400).json({ error: 'Iframe URL is required' });
+    }
+
+    try {
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+        const page = await browser.newPage();
+        let urls = [];
+        let downloadURL = '';
+        page.on('response', (response) => {
+            const requestUrl = response.url();
+            const resourceType = response.request().resourceType();
+
+            if ((resourceType === 'fetch' || resourceType === 'xhr') &&
+                requestUrl.startsWith('https://www.1024terabox.com/share/extstreaming.m3u8?')) {
+                
+                urls.push(requestUrl);
+                downloadURL = requestUrl;
+            }
+        });
+
+        await page.goto(iframeUrl, { waitUntil: 'domcontentloaded' });
+        await page.waitForSelector('iframe');
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+        await browser.close();
+        res.json(downloadURL);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'An error occurred while processing the request.' });
     }
 });
 

@@ -190,7 +190,7 @@ app.post('/getVideoURLs', async (req, res) => {
     if (!iframeUrl) {
         return res.status(400).json({ error: 'Iframe URL is required' });
     }
-
+    console.log('first',iframeUrl)
     try {
         const browser = await puppeteer.launch({
             headless: true,
@@ -200,21 +200,24 @@ app.post('/getVideoURLs', async (req, res) => {
         let urls = [];
         let downloadURL = '';
         page.on('response', (response) => {
+            console.log('1',response)
             const requestUrl = response.url();
             const resourceType = response.request().resourceType();
 
             if ((resourceType === 'fetch' || resourceType === 'xhr') &&
                 requestUrl.startsWith('https://www.1024terabox.com/share/extstreaming.m3u8?')) {
-                
+                console.log('2',requestUrl)
                 urls.push(requestUrl);
                 downloadURL = requestUrl;
             }
         });
-
+        console.log('3',urls)
         await page.goto(iframeUrl, { waitUntil: 'domcontentloaded' });
+        
         await page.waitForSelector('iframe');
         await new Promise((resolve) => setTimeout(resolve, 10000));
         await browser.close();
+        console.log('4',downloadURL)
         res.json(downloadURL);
     } catch (error) {
         console.error('Error:', error.message);
